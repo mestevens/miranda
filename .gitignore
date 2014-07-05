@@ -14,7 +14,5 @@ ProjectSettings
 UnitTestResults.xml
 Temp
 .DS_Store
-Assets/Editor/Plugins/*
-Assets/Runtime/Plugins/*
 target/
 unity-test-log.txt
