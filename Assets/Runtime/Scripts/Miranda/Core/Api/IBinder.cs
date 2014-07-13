@@ -10,10 +10,6 @@ namespace Mestevens.Injection.Core.Api
 	{
 		IBinder Bind<T>();
 
-		IBinder BindSignal<T>();
-		
-		IBinder ToCommand<T>();
-
 		IBinder To<T>();
 
 		Binder To(object obj);
@@ -39,8 +35,6 @@ namespace Mestevens.Injection.Core.Api
 		IDictionary<object, IList<CachedBinding>> GetCachedBindings();
 
 		IDictionary<string, object> GetSingletons();
-
-		IDictionary<Type, IList<Type>> GetSignalsToCommands();
 
 	}
 

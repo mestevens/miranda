@@ -24,11 +24,6 @@ namespace Mestevens.Injection.Core
 			return injectionBinder.Bind<T>();
 		}
 
-		public IBinder BindSignal<T>()
-		{
-			return injectionBinder.BindSignal<T>();
-		}
-		
 		public T Get<T>(string name = "")
 		{
 			object instance = injectionBinder.Get<T>(name);

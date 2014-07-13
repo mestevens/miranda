@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using Mestevens.Injection.Core.Api;
 using Mestevens.Injection.Core.Exceptions.Impl;
 
-using Mestevens.Injection.Extensions;
-
 namespace Mestevens.Injection.Core.Impl
 {
 
@@ -17,10 +15,8 @@ namespace Mestevens.Injection.Core.Impl
 		private IDictionary<object, IList<Binding>> binder;
 		private IDictionary<object, IList<CachedBinding>> cachedBinder;
 		private static IDictionary<string, object> singletons;
-		private IDictionary<Type, IList<Type>> signalsToCommands;
 
 		private Binding binding;
-		private Type signal;
 
 		private IList<BindingNotFoundException> exceptions;
 
@@ -30,7 +26,6 @@ namespace Mestevens.Injection.Core.Impl
 			cachedBinder = new Dictionary<object, IList<CachedBinding>>();
 			singletons = new Dictionary<string, object>();
 			exceptions = new List<BindingNotFoundException>();
-			signalsToCommands = new Dictionary<Type, IList<Type>>();
 		}
 
 		public IBinder Bind<T>()
@@ -42,41 +37,6 @@ namespace Mestevens.Injection.Core.Impl
 		{
 			binding = new Binding(keyClazz);
 			return this;
-		}
-
-		public IBinder BindSignal<T>()
-		{
-			return BindSignal(typeof(T));
-		}
-
-		private Binder BindSignal(Type keyClazz)
-		{
-			signal = keyClazz;
-			if (!signalsToCommands.ContainsKey(keyClazz))
-			{
-				return this.Bind(keyClazz).To(keyClazz).ToSingleton() as Binder;
-			}
-			return this;
-		}
-
-		public IBinder ToCommand<T>()
-		{
-			return ToCommand(typeof(T));
-		}
-
-		private Binder ToCommand(Type type)
-		{
-			if (signalsToCommands.ContainsKey(signal))
-			{
-				signalsToCommands[signal].Add(type);
-			}
-			else
-			{
-				IList<Type> commandList = new List<Type>();
-				commandList.Add(type);
-				signalsToCommands.Add(signal, commandList);
-			}
-			return this.Bind(type).To(type);
 		}
 
 		public IBinder To<T>()
@@ -92,7 +52,6 @@ namespace Mestevens.Injection.Core.Impl
 				binder[binding.Key].RemoveAt(binder[binding.Key].Count - 1);
 				oldBinding.Value = obj;
 				AddToBinder(oldBinding);
-				//binder[binding.Key][binder[binding.Key].Count - 1].Value = obj;
 			}
 			else
 			{
@@ -110,7 +69,6 @@ namespace Mestevens.Injection.Core.Impl
 				binder[binding.Key].RemoveAt(binder[binding.Key].Count - 1);
 				oldBinding.Name = name;
 				AddToBinder(oldBinding);
-				//binder[binding.Key][binder[binding.Key].Count - 1].Name = name;
 			}
 			else
 			{
@@ -127,7 +85,6 @@ namespace Mestevens.Injection.Core.Impl
 				binder[binding.Key].RemoveAt(binder[binding.Key].Count - 1);
 				oldBinding.Singleton = true;
 				AddToBinder(oldBinding);
-				//binder[binding.Key][binder[binding.Key].Count - 1].Singleton = true;
 			}
 			else
 			{
@@ -324,12 +281,8 @@ namespace Mestevens.Injection.Core.Impl
 
 			object noParamInstance = cachedBinding.Activate();
 
-			//UnityEngine.Debug.Log (cachedBinding.Value.GetType ());
-			//if (cachedBinding.Value.GetType()
-			//{
-				SetMemberInfo (noParamInstance.GetType ().GetProperties (), typeof(PropertyInfo), ref noParamInstance, throwExceptions);
-				SetMemberInfo (noParamInstance.GetType ().GetFields (), typeof(FieldInfo), ref noParamInstance, throwExceptions);
-			//}
+			SetMemberInfo (noParamInstance.GetType ().GetProperties (), typeof(PropertyInfo), ref noParamInstance, throwExceptions);
+			SetMemberInfo (noParamInstance.GetType ().GetFields (), typeof(FieldInfo), ref noParamInstance, throwExceptions);
 
 			if (cachedBinding.Singleton)
 			{
@@ -353,10 +306,6 @@ namespace Mestevens.Injection.Core.Impl
 				{
 					foreach(Binding otherBinding in otherPair.Value)
 					{
-						/*if(!binder[otherPair.Key].Contains(otherBinding))
-						{
-							binder[otherPair.Key].Add(otherBinding);
-						}*/
 						AddToBinder(otherBinding);
 					}
 				}
@@ -374,23 +323,6 @@ namespace Mestevens.Injection.Core.Impl
 						if(!cachedBinder[otherCachePair.Key].Contains(otherCachedBinding))
 						{
 							cachedBinder[otherCachePair.Key].Add(otherCachedBinding);
-						}
-					}
-				}
-			}
-			foreach(KeyValuePair<Type, IList<Type>> otherSignalsToCommands in otherBinder.GetSignalsToCommands())
-			{
-				if (!signalsToCommands.ContainsKey(otherSignalsToCommands.Key))
-				{
-					signalsToCommands.Add(otherSignalsToCommands);
-				}
-				else
-				{
-					foreach(Type otherType in otherSignalsToCommands.Value)
-					{
-						if(!signalsToCommands[otherSignalsToCommands.Key].Contains(otherType))
-						{
-							signalsToCommands[otherSignalsToCommands.Key].Add(otherType);
 						}
 					}
 				}
@@ -514,15 +446,6 @@ namespace Mestevens.Injection.Core.Impl
 				}
 				throw new BindingNotFoundException(exceptionString);
 			}
-			//Initialize commands
-			foreach(KeyValuePair<Type, IList<Type>> pairs in signalsToCommands)
-			{
-				Signal s = (Signal)this.Get(pairs.Key, "", true);
-				foreach(Type commands in pairs.Value)
-				{
-					s.AddCommand(commands);
-				}
-			}
 		}
 
 		public IDictionary<object, IList<Binding>> GetBindings()
@@ -538,11 +461,6 @@ namespace Mestevens.Injection.Core.Impl
 		public IDictionary<string, object> GetSingletons()
 		{
 			return singletons;
-		}
-		
-		public IDictionary<Type, IList<Type>> GetSignalsToCommands()
-		{
-			return signalsToCommands;
 		}
 
 	}

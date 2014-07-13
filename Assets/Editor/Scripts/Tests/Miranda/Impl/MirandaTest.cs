@@ -6,8 +6,6 @@ using NUnit.Framework;
 using Mestevens.Injection.Core.Impl;
 using Mestevens.Injection.Core.Exceptions.Impl;
 
-using Mestevens.Injection.Extensions;
-
 namespace Mestevens.Injection.Core
 {
 
@@ -139,45 +137,6 @@ namespace Mestevens.Injection.Core
 
 			public string GetString() {
 				return singletonString;
-			}
-
-		}
-
-		#endregion
-
-		#region Signals and Commands
-
-		public class TestSignal : Signal {
-
-		}
-
-		public class TestCommand : Command {
-
-			public IReader reader;
-			public ITest test;
-
-			[Inject]
-			public IWriter Writer { get; set; }
-
-			[Inject]
-			public TestCommand(IReader reader, [Named("constructor.inject.class")] ITest test) {
-				this.reader = reader;
-				this.test = test;
-			}
-
-			public override void MapParameters(params object[] parameters) {
-
-			}
-			
-			public override void Execute() {
-				Assert.AreEqual(WRITER_STRING, this.Writer.WriteString());
-				Assert.AreEqual(WRITER_INT, this.Writer.WriteInt());
-				Assert.AreEqual(READER_STRING, this.reader.ReadString());
-				Assert.AreEqual(READER_INT, this.reader.ReadInt());
-				Assert.AreEqual(READER_BOOL, this.reader.ReadBool());
-				Assert.NotNull(test);
-				test.AssertPassOrFail();
-				Assert.Pass();
 			}
 
 		}
@@ -369,9 +328,6 @@ namespace Mestevens.Injection.Core
 
 				//Singletons
 				Bind<ISingleton>().To<Singleton>().ToSingleton();
-
-				//Signals to commands
-				BindSignal<TestSignal>().ToCommand<TestCommand>();
 			}
 
 		}
@@ -593,20 +549,6 @@ namespace Mestevens.Injection.Core
 			Assert.AreEqual(STRING_BINDING, stringValue);
 			int intValue = context.Get<int>("int.binding");
 			Assert.AreEqual(INT_BINDING, intValue);
-		}
-
-		[Test]
-		public void MirandaGetSignalTest() {
-			TestSignal testSignal = context.Get<TestSignal>();
-			Assert.NotNull(testSignal);
-		}
-
-		[Test]
-		public void MirandaGetCommandTest() {
-			TestSignal testSignal = context.Get<TestSignal>();
-			Assert.NotNull(testSignal);
-			testSignal.Dispatch();
-			Assert.Fail();
 		}
 
 		[Test]
