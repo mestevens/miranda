@@ -25,6 +25,8 @@ namespace Mestevens.Injection.Core
 		private const bool READER_BOOL = false;
 
 		private const string STRING_BINDING = "Here is a string binding";
+		private const string OVERWRITE_STRING_BINDING = "OVERWRITE";
+		private const string ANOTHER_OVERWRITE_STRING_BINDING = "ANOTHER_OVERWRITE";
 		private const int INT_BINDING = 2034;
 
 		private const string SINGLETON_STRING = "Singleton String.";
@@ -374,6 +376,43 @@ namespace Mestevens.Injection.Core
 
 		}
 
+		public class OverwriteContext : Context {
+
+			public OverwriteContext() : base() {
+
+			}
+
+			public override void MapBindings() {
+				Bind<string> ().To (OVERWRITE_STRING_BINDING).Named ("string.binding").WithStrength (1);
+			}
+
+		}
+
+		public class OverwriteSameStrengthContext : Context {
+			
+			public OverwriteSameStrengthContext() : base() {
+				
+			}
+			
+			public override void MapBindings() {
+				Bind<string> ().To (ANOTHER_OVERWRITE_STRING_BINDING).Named ("string.binding").WithStrength (1);
+			}
+			
+		}
+
+		public class OverwriteInSameContext : Context {
+
+			public OverwriteInSameContext() : base() {
+				
+			}
+			
+			public override void MapBindings() {
+				Bind<string>().To(STRING_BINDING).Named("string.binding");
+				Bind<string> ().To (OVERWRITE_STRING_BINDING).Named ("string.binding").WithStrength (1);
+			}
+
+		}
+
 		public class SingletonClass {
 			public string value;
 
@@ -595,6 +634,34 @@ namespace Mestevens.Injection.Core
 			testObject.Name = "Changed again";
 			TestObject newTestObject = context.Get<TestObject>();
 			Assert.AreEqual("Changed again", newTestObject.Name);
+		}
+
+		[Test]
+		public void MirandaStrengthOverwriteTest() {
+			context = Miranda.Init (new MasterContext (), new OverwriteContext ());
+			string stringValue = context.Get<string>("string.binding");
+			Assert.AreEqual(OVERWRITE_STRING_BINDING, stringValue);
+		}
+
+		[Test]
+		public void MirandStrengthOverwriteInSameContextTest() {
+			context = Miranda.Init (new OverwriteInSameContext ());
+			string stringValue = context.Get<string>("string.binding");
+			Assert.AreEqual(OVERWRITE_STRING_BINDING, stringValue);
+		}
+
+		[Test]
+		public void MirandStrengthOverwriteSameStrengthTest() {
+			context = Miranda.Init (new OverwriteInSameContext (), new OverwriteSameStrengthContext());
+			string stringValue = context.Get<string>("string.binding");
+			Assert.AreEqual(ANOTHER_OVERWRITE_STRING_BINDING, stringValue);
+		}
+
+		[Test]
+		public void MirandaStrengthUnderwriteTest() {
+			context = Miranda.Init (new OverwriteContext (), new MasterContext ());
+			string stringValue = context.Get<string>("string.binding");
+			Assert.AreEqual(OVERWRITE_STRING_BINDING, stringValue);
 		}
 
 	}

@@ -21,6 +21,8 @@ namespace Mestevens.Injection.Core.Api
 		IBinder Named(string name);
 		
 		IBinder ToSingleton();
+
+		IBinder WithStrength(int strength);
 		
 		object Get<T>(string name = "");
 

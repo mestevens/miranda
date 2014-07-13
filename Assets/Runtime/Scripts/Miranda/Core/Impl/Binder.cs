@@ -88,7 +88,11 @@ namespace Mestevens.Injection.Core.Impl
 		{
 			if (binding.Value != null)
 			{
-				binder[binding.Key][binder[binding.Key].Count - 1].Value = obj;
+				Binding oldBinding = binder[binding.Key][binder[binding.Key].Count - 1];
+				binder[binding.Key].RemoveAt(binder[binding.Key].Count - 1);
+				oldBinding.Value = obj;
+				AddToBinder(oldBinding);
+				//binder[binding.Key][binder[binding.Key].Count - 1].Value = obj;
 			}
 			else
 			{
@@ -102,7 +106,11 @@ namespace Mestevens.Injection.Core.Impl
 		{
 			if (binding.Value != null)
 			{
-				binder[binding.Key][binder[binding.Key].Count - 1].Name = name;
+				Binding oldBinding = binder[binding.Key][binder[binding.Key].Count - 1];
+				binder[binding.Key].RemoveAt(binder[binding.Key].Count - 1);
+				oldBinding.Name = name;
+				AddToBinder(oldBinding);
+				//binder[binding.Key][binder[binding.Key].Count - 1].Name = name;
 			}
 			else
 			{
@@ -115,13 +123,36 @@ namespace Mestevens.Injection.Core.Impl
 		{
 			if (binding.Value != null)
 			{
-				binder[binding.Key][binder[binding.Key].Count - 1].Singleton = true;
+				Binding oldBinding = binder[binding.Key][binder[binding.Key].Count - 1];
+				binder[binding.Key].RemoveAt(binder[binding.Key].Count - 1);
+				oldBinding.Singleton = true;
+				AddToBinder(oldBinding);
+				//binder[binding.Key][binder[binding.Key].Count - 1].Singleton = true;
 			}
 			else
 			{
 				binding.Singleton = true;
 				binding.Value = binding.Key;
 				AddToBinder(binding);
+			}
+			return this;
+		}
+
+		public IBinder WithStrength(int strength)
+		{
+			if (binding.Value != null)
+			{
+				if (binder[binding.Key].Contains(binding))
+				{
+					Binding oldBinding = binder[binding.Key][binder[binding.Key].IndexOf(binding)];
+					binder[binding.Key].RemoveAt(binder[binding.Key].Count - 1);
+					oldBinding.Strength = strength;
+					AddToBinder(oldBinding);
+				}
+			}
+			else
+			{
+				binding.Strength = strength;
 			}
 			return this;
 		}
@@ -322,10 +353,11 @@ namespace Mestevens.Injection.Core.Impl
 				{
 					foreach(Binding otherBinding in otherPair.Value)
 					{
-						if(!binder[otherPair.Key].Contains(otherBinding))
+						/*if(!binder[otherPair.Key].Contains(otherBinding))
 						{
 							binder[otherPair.Key].Add(otherBinding);
-						}
+						}*/
+						AddToBinder(otherBinding);
 					}
 				}
 			}
@@ -410,6 +442,17 @@ namespace Mestevens.Injection.Core.Impl
 		{
 			if (binder.ContainsKey(binding.Key))
 			{
+				for (int i = 0; i < binder[binding.Key].Count; i++)
+				{
+					if (binder[binding.Key][i].Name.Equals(binding.Name))
+					{
+						if (binder[binding.Key][i].Strength <= binding.Strength)
+						{
+							binder[binding.Key][i] = binding;
+						}
+						return;
+					}
+				}
 				binder[binding.Key].Add(binding);
 			}
 			else
