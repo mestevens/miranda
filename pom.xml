@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.mestevens.injection</groupId>
+	<artifactId>miranda</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>unity-library</packaging>
+
+	<name>${project.artifactId}</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>ca.mestevens.unity</groupId>
+				<artifactId>unity-maven-plugin</artifactId>
+				<version>0.1.0</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>com.atlassian.maven.plugins</groupId>
+				<artifactId>maven-jgitflow-plugin</artifactId>
+				<version>1.0-alpha26</version>
+				<configuration>
+					<enableFeatureVersions>false</enableFeatureVersions>
+					<pushReleases>true</pushReleases>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
