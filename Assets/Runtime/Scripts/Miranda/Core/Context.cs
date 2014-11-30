@@ -74,6 +74,11 @@ namespace Mestevens.Injection.Core
 			injectionBinder.InstantiateBindings();
 		}
 
+		public virtual void PostInit(Context rootContext)
+		{
+
+		}
+
 	}
 
 }
