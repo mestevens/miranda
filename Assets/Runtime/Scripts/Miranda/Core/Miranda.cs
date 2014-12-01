@@ -25,12 +25,19 @@ namespace Mestevens.Injection.Core
 		public static Context Init(params Context[] contexts)
 		{
 			RootContext rootContext = new RootContext();
+
 			rootContext.MapBindings();
 			foreach(Context context in contexts)
 			{
 				rootContext.AddContext(context);
 			}
 			rootContext.InstantiateBindings();
+			
+			foreach(Context context in contexts)
+			{
+				context.PostInit(rootContext);
+			}
+
 			return rootContext;
 		}
 
