@@ -28,11 +28,19 @@ public class Injection {
 			Scene scene = SceneManager.GetActiveScene();
 			GameObject[] gameObjects = scene.GetRootGameObjects();
 			foreach (GameObject gameObject in gameObjects) {
-				Component[] components = gameObject.GetComponents<Component>();
-				foreach (Component component in components) {
-					injector.InjectIntoObject(component);
-				}
+				InjectIntoGameObject(gameObject);
 			}
+		}
+	}
+
+	private static void InjectIntoGameObject(GameObject gameObject) {
+		Component[] components = gameObject.GetComponents<Component>();
+		foreach (Component component in components) {
+			injector.InjectIntoObject(component);
+		}
+		for (int i = 0; i < gameObject.transform.childCount; i++) {
+			GameObject child = gameObject.transform.GetChild(i).gameObject;
+			InjectIntoGameObject(child);
 		}
 	}
 
