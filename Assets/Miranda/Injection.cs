@@ -25,10 +25,12 @@ public class Injection {
 
 	public static void InjectIntoScene() {
 		if (injector != null) {
-			Scene scene = SceneManager.GetActiveScene();
-			GameObject[] gameObjects = scene.GetRootGameObjects();
-			foreach (GameObject gameObject in gameObjects) {
-				InjectIntoGameObject(gameObject);
+			for (int i = 0; i < SceneManager.sceneCount; i++) {
+				Scene scene = SceneManager.GetSceneAt(i);
+				GameObject[] gameObjects = scene.GetRootGameObjects();
+				foreach (GameObject gameObject in gameObjects) {
+					InjectIntoGameObject(gameObject);
+				}
 			}
 		}
 	}
