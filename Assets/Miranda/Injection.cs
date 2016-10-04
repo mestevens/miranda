@@ -5,7 +5,7 @@ namespace Miranda {
 
 public class Injection {
 
-	private static Injector injector;
+	public static Injector injector;
 
 	public static Injector CreateStaticInjector(params Module[] modules) {
 		injector = new Injector();
